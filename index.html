@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLIM-CALC — Puissance frigorifique & splits</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .niveau-block {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #f9f9f9;
+    }
+    .niveau-block h3 {
+      margin: 0 0 10px;
+      font-size: 1em;
+      color: #2c3e50;
+    }
+    .niveau-block.locked {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .hint-red { color: #c0392b; font-size: 0.85em; }
+    details {
+      margin-top: 8px;
+      padding: 8px;
+      background: #eef;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    details summary {
+      cursor: pointer;
+      font-weight: bold;
+      user-select: none;
+    }
+    .section-hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CLIM-CALC</h1>
+      <p>Calculateur de puissance climatiseur réversible et de nombre de splits</p>
+    </header>
+
+    <main>
+      <form id="climForm">
+
+        <!-- ═══════════════ 1. CONFIGURATION GLOBALE ═══════════════ -->
+        <section class="card">
+          <h2>1. Configuration globale</h2>
+          <div class="field-row">
+            <label for="surface">Surface habitable totale à climatiser (m²)</label>
+            <input type="number" id="surface" min="1" value="60" required>
+          </div>
+          <div class="field-row">
+            <label for="hauteur">Hauteur sous plafond (m)</label>
+            <select id="hauteur">
+              <option value="2.5">2,5 m</option>
+              <option value="2.7" selected>2,7 m</option>
+              <option value="3">3 m</option>
+              <option value="3.5">3,5 m et +</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="nbPieces">Nombre de pièces à traiter</label>
+            <input type="number" id="nbPieces" min="1" value="3" required>
+          </div>
+          <div class="field-row">
+            <label for="typeLogement">Configuration des niveaux</label>
+            <select id="typeLogement">
+              <option value="plainpied" selected>Plein-pied</option>
+              <option value="duplex">Duplex (2 niveaux)</option>
+              <option value="triplex">Triplex (3 niveaux)</option>
+              <option value="etage_inter">Étage intermédiaire (immeuble)</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="mitoyennete">Mitoyenneté</label>
+            <select id="mitoyennete">
+              <option value="0.06">Maison isolée (4 murs extérieurs)</option>
+              <option value="0.04">Mitoyenne sur 1 côté</option>
+              <option value="0.02">Mitoyenne sur 2 côtés</option>
+              <option value="0" selected>Immeuble / entouré (1 mur extérieur max)</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- ═══════════════ 2. PAR NIVEAU (dynamique) ═══════════════ -->
+        <section class="card" id="sectionNiveaux">
+          <h2>2. Composition par niveau</h2>
+          <p class="hint">Pour chaque niveau, indiquez le matériau et l'isolation dominants. Les champs sont cohérents : si vous sélectionnez "pierre épaisse", l'isolation est automatiquement "aucune" (modifiable si vous avez fait une isolation rapportée).</p>
+          <div id="niveauxContainer">
+            <!-- Rempli en JS selon typeLogement -->
+          </div>
+        </section>
+
+        <!-- ═══════════════ 3. TOITURE (conditionnelle) ═══════════════ -->
+        <section class="card" id="sectionToiture">
+          <h2>3. Toiture / combles</h2>
+          <div class="field-row">
+            <label for="toiture">Situation du dernier niveau climatisé</label>
+            <select id="toiture">
+              <option value="pas_toit">Pas de toiture au-dessus du volume climatisé (appartement sous un autre logement)</option>
+              <option value="toit_iso" selected>Toiture / combles bien isolés (λ ≤ 0.040, ≥ 200 mm)</option>
+              <option value="toit_moyen">Toiture isolée moyennement (100–200 mm)</option>
+              <option value="toit_faible">Toiture peu isolée ou non isolée / sous-pente</option>
+            </select>
+          </div>
+          <div id="toitureDetails">
+            <div class="field-row">
+              <label for="typeIsolant">Type d'isolant toiture</label>
+              <select id="typeIsolant">
+                <option value="0" selected>Inconnu / non renseigné</option>
+                <option value="-0.01">Laine de verre / laine de roche (λ 0.032–0.040)</option>
+                <option value="-0.015">Polyuréthane PIR (λ 0.022–0.028) — haute performance</option>
+                <option value="-0.008">Polystyrène expansé PSE (λ 0.032–0.038)</option>
+                <option value="-0.008">Ouate de cellulose (λ 0.038–0.042)</option>
+                <option value="-0.005">Liège expansé (λ 0.038–0.042)</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="epaisseurIsolant">Épaisseur isolant toiture (mm)</label>
+              <input type="number" id="epaisseurIsolant" min="0" max="500" value="" placeholder="ex: 200">
+            </div>
+
+            <details id="veluxPanel">
+              <summary>3.1 Fenêtres de toit (type Velux)</summary>
+              <p class="hint" style="margin:8px 0;">Les fenêtres de toit sont directement exposées au soleil d'été (incidence quasi perpendiculaire), elles génèrent jusqu'à 2× les apports d'une paroi vitrée verticale de même surface. Précisez leur occultation pour un calcul réaliste.</p>
+              <div class="field-row">
+                <label for="veluxOui">Fenêtre(s) de toit ?</label>
+                <select id="veluxOui">
+                  <option value="0" selected>Aucune fenêtre de toit</option>
+                  <option value="petit">Oui — petites (≤ 0,5 m² chacune, ex: 55×78 cm)</option>
+                  <option value="moyen">Oui — moyennes (≈ 0,8 m² chacune, ex: 78×98 cm)</option>
+                  <option value="grand">Oui — grandes (≥ 1,2 m², verrière, skydome, VELUX panoramique)</option>
+                </select>
+              </div>
+              <div id="veluxDetails" class="section-hidden">
+                <div class="field-row">
+                  <label for="veluxNombre">Nombre de fenêtres de toit</label>
+                  <input type="number" id="veluxNombre" min="1" max="20" value="1">
+                </div>
+                <p class="hint" style="margin:8px 0;">Indiquez séparément le volet extérieur (le plus efficace) et le store intérieur. Les deux peuvent coexister.</p>
+                <div class="field-row">
+                  <label for="veluxVoletExterieur">Volet roulant extérieur</label>
+                  <select id="veluxVoletExterieur">
+                    <option value="non" selected>Non</option>
+                    <option value="oui">Oui</option>
+                  </select>
+                </div>
+                <div class="field-row">
+                  <label for="veluxStoreInterieur">Store / rideau intérieur</label>
+                  <select id="veluxStoreInterieur">
+                    <option value="aucun" selected>Aucun</option>
+                    <option value="voilage">Voilage / rideau clair (réduit un peu)</option>
+                    <option value="store">Store opaque / plissé occultant</option>
+                    <option value="rideau_epais">Rideau épais doublé (fort occultant)</option>
+                  </select>
+                </div>
+                <div class="field-row">
+                  <label for="veluxOrientation">Orientation dominante des fenêtres de toit</label>
+                  <select id="veluxOrientation">
+                    <option value="nord_ouest">Nord / Nord-Ouest (moindres apports)</option>
+                    <option value="est" selected>Est (soleil matinal, modéré)</option>
+                    <option value="sud">Sud (apports maximaux toute la journée en été)</option>
+                    <option value="ouest">Ouest (apports tardifs intenses, plus difficiles à gérer)</option>
+                  </select>
+                </div>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <!-- ═══════════════ 4. EXPOSITION / FENÊTRES ═══════════════ -->
+        <section class="card">
+          <h2>4. Exposition et ouvertures</h2>
+          <div class="field-row">
+            <label for="exposition">Exposition solaire principale</label>
+            <select id="exposition">
+              <option value="0" selected>Nord / Est (peu d'apports solaires l'après-midi)</option>
+              <option value="0.02">Sud / Ouest avec occultations (stores, volets, arbres)</option>
+              <option value="0.04">Sud / Ouest sans protection</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="fenetres">Surface vitrée globale</label>
+            <select id="fenetres">
+              <option value="0">Petites / peu nombreuses (&lt; 15% des parois)</option>
+              <option value="0.03" selected>Proportion standard (15–25%)</option>
+              <option value="0.06">Grandes baies vitrées (25–40%)</option>
+              <option value="0.10">Très grandes surfaces vitrées ou baies plein Sud (&gt; 40%)</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="vitrage">Type de vitrage</label>
+            <select id="vitrage">
+              <option value="0">Double vitrage récent (ITR, gaz argon)</option>
+              <option value="0.03" selected>Double vitrage standard</option>
+              <option value="0.08">Simple vitrage / ancien</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- ═══════════════ 5. OCCUPATION & USAGES ═══════════════ -->
+        <section class="card">
+          <h2>5. Occupation et usages</h2>
+          <div class="field-row">
+            <label for="nbOccupants">Nombre d'occupants usuels</label>
+            <input type="number" id="nbOccupants" min="1" value="2">
+          </div>
+          <div class="field-row">
+            <label for="tempFroid">Température intérieure visée en froid (°C)</label>
+            <input type="number" id="tempFroid" min="18" max="28" value="25" step="1">
+          </div>
+          <div class="field-row">
+            <label for="tempChaud">Température intérieure visée en chaud (°C)</label>
+            <input type="number" id="tempChaud" min="16" max="24" value="20" step="1">
+          </div>
+          <div class="field-row">
+            <label for="localite">Climat local</label>
+            <select id="localite">
+              <option value="1">Tempéré (été &lt; 30 °C)</option>
+              <option value="1.05" selected>Chaude (30–35 °C)</option>
+              <option value="1.10">Très chaude / canicule (&gt; 35 °C)</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="appareils">Charges internes (TV, PC, plaques...)</label>
+            <select id="appareils">
+              <option value="0" selected>Légères</option>
+              <option value="0.05">Moyennes</option>
+              <option value="0.1">Fortes</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <label for="ventilation">Renouvellement d'air</label>
+            <select id="ventilation">
+              <option value="0" selected>Portes/fenêtres fermées, faible renouvellement</option>
+              <option value="0.05">VMC / entrées d'air modérées</option>
+              <option value="0.1">Fort renouvellement / utilisation intensive</option>
+            </select>
+          </div>
+        </section>
+
+        <button type="submit" class="calculate-btn">Calculer la puissance et les splits</button>
+      </form>
+
+      <section id="result" class="result-card hidden">
+        <h2>Résultat du dimensionnement</h2>
+        <button type="button" id="exportBtn2" class="export-btn">📄 Exporter cette page en PDF</button>
+        <div class="metrics">
+          <div class="metric">
+            <span class="metric-value" id="volumeOut">-</span>
+            <span class="metric-label">Volume climatisé (m³)</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="puissanceFroidOut">-</span>
+            <span class="metric-label">Puissance froid estimée</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="puissanceChaudOut">-</span>
+            <span class="metric-label">Puissance chaud estimée</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value" id="splitsOut">-</span>
+            <span class="metric-label">Nombre de splits</span>
+          </div>
+        </div>
+        <h3>Configuration de splits recommandée</h3>
+        <div id="recommandationOut"></div>
+        <div id="configAlternatives"></div>
+        <h3>Détail par niveau</h3>
+        <div id="detailNiveaux"></div>
+        <h3>Postes qui influencent le besoin</h3>
+        <div id="impactPostes"></div>
+        <h3>Conseils</h3>
+        <ul id="conseilsOut"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>CLIM-CALC · Estimation indicative, ne remplace pas une étude thermique complète.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

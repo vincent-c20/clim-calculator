@@ -1,0 +1,449 @@
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --accent: #0ea5e9;
+  --success: #10b981;
+  --danger: #ef4444;
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+  margin-bottom: 18px;
+}
+
+.card h2 {
+  margin: 0 0 16px;
+  font-size: 1.15rem;
+  color: var(--text);
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.field-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.field-row:last-child {
+  margin-bottom: 0;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+input, select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.field-row.group {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  background: #fafafa;
+}
+
+.field-row.group label.sub {
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.field-row.group input:first-of-type {
+  margin-bottom: 4px;
+}
+
+.hint {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: -4px;
+  margin-bottom: 14px;
+}
+
+.calculate-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .08s, filter .15s;
+}
+
+.calculate-btn:hover {
+  filter: brightness(1.05);
+}
+
+.calculate-btn:active {
+  transform: translateY(1px);
+}
+
+.result-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+  margin-top: 24px;
+  animation: fadeIn .4s ease;
+}
+
+.result-card.hidden {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-card h2 {
+  margin: 0 0 16px;
+  color: var(--primary-dark);
+}
+
+.result-card h3 {
+  margin: 20px 0 8px;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.metric {
+  background: #f0f9ff;
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.metric-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.zone-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.zone-table th, .zone-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.zone-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.zone-table tr:last-child td {
+  border-bottom: none;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 6px;
+}
+
+.warning {
+  background: #fff7ed;
+  border-left: 4px solid #f97316;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-top: 14px;
+  color: #7c2d12;
+}
+
+.note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+footer {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 480px) {
+  .metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BOUTON EXPORT PDF
+   ═══════════════════════════════════════════════════════════════ */
+.export-btn {
+  display: block;
+  margin: 12px 0;
+  padding: 10px 18px;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  background: white;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.export-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE PRINT : affichage PDF propre
+   - Le HTML est transformé en "print-version" par le JS avant window.print()
+   - Les sélecteurs ci-dessous garantissent un rendu papier lisible
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  /* Reset page */
+  @page {
+    size: A4;
+    margin: 15mm 12mm;
+  }
+
+  body {
+    background: white !important;
+    color: #000 !important;
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+
+  /* Cacher les éléments interactifs */
+  button, .calculate-btn, .export-btn,
+  header, footer,
+  .calculate-btn, #exportBtn, #exportBtn2 {
+    display: none !important;
+  }
+
+  /* Réduire le container */
+  .container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Cards : pas d'ombre ni d'animation, bordure fine */
+  .card, .result-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+    margin-bottom: 12pt;
+    padding: 12pt;
+  }
+
+  /* Titre principal */
+  .print-header {
+    display: block !important;
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 6pt;
+    margin-bottom: 12pt;
+  }
+  .print-header h1 {
+    font-size: 16pt;
+    margin: 0;
+  }
+  .print-header p {
+    font-size: 9pt;
+    color: #555;
+    margin: 3pt 0 0;
+  }
+
+  /* Titres de sections */
+  .card h2, .result-card h2 {
+    font-size: 12pt;
+    border-bottom: 1px solid #999;
+    margin: 0 0 8pt;
+    padding-bottom: 4pt;
+  }
+
+  /* Affichage des réponses sous forme label : valeur */
+  .print-row {
+    display: flex !important;
+    margin-bottom: 4pt;
+    font-size: 10pt;
+    border-bottom: 1px dotted #ddd;
+    padding-bottom: 3pt;
+  }
+  .print-row .p-label {
+    flex: 0 0 55%;
+    font-weight: 600;
+    color: #333;
+  }
+  .print-row .p-value {
+    flex: 1;
+    color: #000;
+  }
+
+  /* Masquer le formulaire original en print */
+  form#climForm .card:not(.print-visible) {
+    display: block !important;
+  }
+
+  /* Tables */
+  .zone-table {
+    font-size: 9pt;
+  }
+  .zone-table th, .zone-table td {
+    padding: 4pt 6pt;
+    border: 1px solid #999;
+  }
+  .zone-table th {
+    background: #eee !important;
+  }
+
+  /* Métriques en ligne */
+  .metrics {
+    border: 1px solid #999;
+    border-radius: 0;
+  }
+  .metric {
+    background: white !important;
+    border-left: 3px solid #333;
+    border-radius: 0;
+  }
+  .metric-value {
+    font-size: 13pt;
+  }
+
+  /* Bloc recommandé */
+  .result-card div[style*="background: #2ecc71"],
+  .result-card div[style*="background:#2ecc71"] {
+    background: #ddd !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border: 1px solid #333;
+  }
+
+  /* Page break avant résultat */
+  .result-card {
+    page-break-before: always;
+  }
+
+  /* Éviter coupure en plein milieu */
+  h2, h3, .metric, .niveau-block {
+    page-break-after: avoid;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* Alternatives */
+  .result-card div[style*="border-left: 3px solid"] {
+    border-left: 2px solid #666 !important;
+    margin-bottom: 8pt;
+    padding-left: 10pt;
+  }
+
+  /* Conseils */
+  ul {
+    margin-top: 4pt;
+  }
+  li {
+    margin-bottom: 3pt;
+    font-size: 10pt;
+  }
+
+  /* Timestamp en bas */
+  .print-footer {
+    display: block !important;
+    text-align: center;
+    font-size: 8pt;
+    color: #666;
+    margin-top: 12pt;
+    border-top: 1px solid #ccc;
+    padding-top: 4pt;
+  }
+}
+
+/* Éléments print-only (cachés en écran normal) */
+.print-header, .print-footer, .print-row {
+  display: none;
+}
